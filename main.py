@@ -1,5 +1,6 @@
 from os import listdir
 from os.path import isfile, join
+from sentence_transformers import SentenceTransformer
 
 def get_filenames_in_directory(directory):
     """
@@ -23,12 +24,26 @@ def get_read_files(path):
     Returns:
         str: The content of the file.
     """
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
+#Load the data from the files in the data directory and split it into chunks based on the "#" delimiter
+chunks = []
 
-files = get_filenames_in_directory('./data')
+for file in get_filenames_in_directory("./data"):
+    text = get_read_files(join("./data", file))
+    for part in text.split("#"):
+        part = part.strip()
+        if part:
+            chunks.append(part)
 
-for file in files:
-    print(f'File: {get_read_files(f"./data/{file}")}')
-    break
+
+# Clean the data set by removing empty strings and whitespaces
+chunks = [cleaned for chunk in chunks if (cleaned := chunk.strip())]
+
+print(len(chunks))
+
+# Load the model
+# model = SentenceTransformer("BAAI/bge-m3")
+
+# create the vector out of the chunks
