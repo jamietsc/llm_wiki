@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile, join
 from sentence_transformers import SentenceTransformer, util
+import torch
 
 def get_filenames_in_directory(directory):
     """
@@ -43,6 +44,16 @@ chunks = [cleaned for chunk in chunks if (cleaned := chunk.strip())]
 
 # Load the model
 model = SentenceTransformer("BAAI/bge-m3")
+
+# Set the device to GPU if available, otherwise use CPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Move the model to the selected device
+model.to(device)
+
+# Debug: Check which device is used for the model
+# If it returns "True", it means the model is on GPU, otherwise it's on CPU
+print(f"Model is using device: {next(model.parameters()).is_cuda}")
 
 # create the vector out of the chunks
 embeddings = model.encode(chunks, show_progress_bar=True)
