@@ -52,7 +52,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Debug: Check which device is used for the model
-print(f"Model is using device: {model.device}")
+# If it returns "True", it means the model is on GPU, otherwise it's on CPU
+print(f"Model is using device: {next(model.parameters()).is_cuda}")
 
 # create the vector out of the chunks
 embeddings = model.encode(chunks, show_progress_bar=True)
