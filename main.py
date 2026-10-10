@@ -46,3 +46,13 @@ model = SentenceTransformer("BAAI/bge-m3")
 
 # create the vector out of the chunks
 embeddings = model.encode(chunks, show_progress_bar=True)
+
+# Get the user query and encode it
+query = input("Enter your Question: ")
+query_embedding = model.encode(query, show_progress_bar=True)
+
+# Calculate the cosine similarity between the query and the chunks
+cosine_scores = util.cos_sim(query_embedding, embeddings)
+
+print("Cosine Similarity Scores:") 
+print(cosine_scores)
