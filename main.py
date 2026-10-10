@@ -1,6 +1,6 @@
 from os import listdir
 from os.path import isfile, join
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 
 def get_filenames_in_directory(directory):
     """
@@ -41,9 +41,8 @@ for file in get_filenames_in_directory("./data"):
 # Clean the data set by removing empty strings and whitespaces
 chunks = [cleaned for chunk in chunks if (cleaned := chunk.strip())]
 
-print(len(chunks))
-
 # Load the model
-# model = SentenceTransformer("BAAI/bge-m3")
+model = SentenceTransformer("BAAI/bge-m3")
 
 # create the vector out of the chunks
+embeddings = model.encode(chunks, show_progress_bar=True)
