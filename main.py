@@ -44,6 +44,9 @@ chunks = [cleaned for chunk in chunks if (cleaned := chunk.strip())]
 # Load the model
 model = SentenceTransformer("BAAI/bge-m3")
 
+# Debug: Check which device is used for the model
+print(f"Model is using device: {model.device}")
+
 # create the vector out of the chunks
 embeddings = model.encode(chunks, show_progress_bar=True)
 
