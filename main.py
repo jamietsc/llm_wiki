@@ -83,7 +83,7 @@ print(f"Sorted Indices: {sorted_indices}\n\n")
 sorted_chunks = sorted([item for chunk in chunks for item in [chunk]], key=lambda x: cosine_scores[0][chunks.index(x)], reverse=True)
 
 # Debug: Print the sorted chunks to verify the order based on cosine similarity
-print(f"Sorted Chunks: {sorted_chunks}\n\n")
+# print(f"Sorted Chunks: {sorted_chunks}\n\n")
 
 # Get the top K elements based on the cosine similarity scores
 query_results = sorted_chunks[settings.top_k_elements]
