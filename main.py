@@ -2,6 +2,8 @@ from os import listdir
 from os.path import isfile, join
 from sentence_transformers import SentenceTransformer, util
 import torch
+import torch.nn as nn
+from config import settings
 
 def get_filenames_in_directory(directory):
     """
@@ -74,12 +76,22 @@ print(cosine_scores)
 # Sort the cosine similarity scores in descending order and get the sorted indices
 sorted_cosine_scores, sorted_indices = torch.sort(cosine_scores, descending=True)
 
-# Debug: Print the sorted cosine similarity scores and their corresponding indices
-print(f"Sorted Cosine Similarity Scores: {sorted_cosine_scores}\n\n")
-print(f"Sorted Indices: {sorted_indices}\n\n")
+#Flatten the sorted cosine scores to a 1D tensor for easier processing
+sorted_cosine_scores = sorted_cosine_scores.flatten()
+sorted_indices = sorted_indices.flatten()
 
-# Sort the chunks based on the sorted indices
-sorted_chunks = sorted([item for chunk in chunks for item in [chunk]], key=lambda x: cosine_scores[0][chunks.index(x)], reverse=True)
+# Debug: Print the count of top k based on the settings
+print(f"--- Top {settings.top_k_elements} Results ---\n\n")
 
-# Debug: Print the sorted chunks to verify the order based on cosine similarity
-print(f"Sorted Chunks: {sorted_chunks}\n\n")
+# The variable for the count to check if top_k_elements is reached
+count = 0
+for idx, score in zip(sorted_indices, sorted_cosine_scores):
+    if score.item() < settings.threshold:
+        break
+
+    #Debug: print the chunk limited to the first 200 characters and the corresponding score
+    print(f"Chunk: {chunks[idx][:200]} \nScore: {score.item()}\n\n")
+
+    count+=1
+    if count >= settings.top_k_elements:
+        break
