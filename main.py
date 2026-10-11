@@ -62,6 +62,9 @@ embeddings = model.encode(chunks, show_progress_bar=True)
 query = input("Enter your Question: ")
 query_embedding = model.encode(query, show_progress_bar=True)
 
+# Debug: Print the query embedding to verify its shape and values
+print(f"Query Embedding: {query_embedding}")
+
 # Calculate the cosine similarity between the query and the chunks
 cosine_scores = util.cos_sim(query_embedding, embeddings)
 
