@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile, join
 from sentence_transformers import SentenceTransformer, util
 import torch
+from config import settings
 
 def get_filenames_in_directory(directory):
     """
@@ -83,3 +84,9 @@ sorted_chunks = sorted([item for chunk in chunks for item in [chunk]], key=lambd
 
 # Debug: Print the sorted chunks to verify the order based on cosine similarity
 print(f"Sorted Chunks: {sorted_chunks}\n\n")
+
+# Get the top K elements based on the cosine similarity scores
+query_results = sorted_chunks[settings.top_k_elements]
+
+# Debug: Print the top K results to verify the output
+print(f"Top {settings.top_k_elements} Results: {query_results}")
