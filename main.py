@@ -70,3 +70,16 @@ cosine_scores = util.cos_sim(query_embedding, embeddings)
 
 print("Cosine Similarity Scores:") 
 print(cosine_scores)
+
+# Sort the cosine similarity scores in descending order and get the sorted indices
+sorted_cosine_scores, sorted_indices = torch.sort(cosine_scores, descending=True)
+
+# Debug: Print the sorted cosine similarity scores and their corresponding indices
+print(f"Sorted Cosine Similarity Scores: {sorted_cosine_scores}\n\n")
+print(f"Sorted Indices: {sorted_indices}\n\n")
+
+# Sort the chunks based on the sorted indices
+sorted_chunks = sorted([item for chunk in chunks for item in [chunk]], key=lambda x: cosine_scores[0][chunks.index(x)], reverse=True)
+
+# Debug: Print the sorted chunks to verify the order based on cosine similarity
+print(f"Sorted Chunks: {sorted_chunks}\n\n")
