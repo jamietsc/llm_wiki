@@ -25,4 +25,4 @@ In normal the number in the tensor means:
 < 0.5 | Weak or irrelevant connectio; filter out
 
 ### The decision
-For the firsts tests my decision for this is 0.7. The reason is I have not get enough data to look only for a perfect match. 
+For the firsts tests my decision for this is 0.5. The reason is I have not get enough data to look only for a perfect match. Another reason is, that the cosine similarity wont return huge numbers like other embedding models. 
