@@ -3,6 +3,7 @@ from os.path import isfile, join
 from sentence_transformers import SentenceTransformer, util
 import torch
 import torch.nn as nn
+from classes.chunk import Chunk
 from config import settings
 
 def get_filenames_in_directory(directory):
@@ -38,11 +39,12 @@ for file in get_filenames_in_directory("./data"):
     for part in text.split("#"):
         part = part.strip()
         if part:
-            chunks.append(part)
+            x = Chunk(chunk_number=len(chunks)+1, chunk_content=part, source_file=file, path=join("./data", file))
+            chunks.append(x)
 
 
 # Clean the data set by removing empty strings and whitespaces
-chunks = [cleaned for chunk in chunks if (cleaned := chunk.strip())]
+chunks = [chunk for chunk in chunks if chunk.chunk_content.strip()]
 
 # Load the model
 model = SentenceTransformer("BAAI/bge-m3")
@@ -58,7 +60,7 @@ model.to(device)
 print(f"Model is using device: {next(model.parameters()).is_cuda}")
 
 # create the vector out of the chunks
-embeddings = model.encode(chunks, show_progress_bar=True)
+embeddings = model.encode([chunk.chunk_content for chunk in chunks], show_progress_bar=True)
 
 # Get the user query and encode it
 query = input("Enter your Question: ")
@@ -90,7 +92,8 @@ for idx, score in zip(sorted_indices, sorted_cosine_scores):
         break
 
     #Debug: print the chunk limited to the first 200 characters and the corresponding score
-    print(f"Chunk: {chunks[idx][:200]} \nScore: {score.item()}\n\n")
+    print(f"Chunk: {chunks[idx].chunk_content[:200]} \nScore: {score.item()}\n\n")
+    print(f"Source File: {chunks[idx].source_file} \nPath: {chunks[idx].path}\n\n")
 
     count+=1
     if count >= settings.top_k_elements:
