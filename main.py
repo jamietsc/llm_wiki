@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from classes.chunk import Chunk
 from config import settings
+from ollama import chat
 
 def get_filenames_in_directory(directory):
     """
@@ -85,16 +86,32 @@ sorted_indices = sorted_indices.flatten()
 # Debug: Print the count of top k based on the settings
 print(f"--- Top {settings.top_k_elements} Results ---\n\n")
 
+# Variable to keep track of each selected chunk's content for the final response
+selected_chunks_content = []
+
 # The variable for the count to check if top_k_elements is reached
 count = 0
 for idx, score in zip(sorted_indices, sorted_cosine_scores):
     if score.item() < settings.threshold:
         break
 
+    selected_chunks_content.append(chunks[idx])
+
     #Debug: print the chunk limited to the first 200 characters and the corresponding score
-    print(f"Chunk: {chunks[idx].chunk_content[:200]} \nScore: {score.item()}\n\n")
-    print(f"Source File: {chunks[idx].source_file} \nPath: {chunks[idx].path}\n\n")
+    #print(f"Chunk: {chunks[idx].chunk_content[:200]} \nScore: {score.item()}\n\n")
+    #print(f"Source File: {chunks[idx].source_file} \nPath: {chunks[idx].path}\n\n")
 
     count+=1
     if count >= settings.top_k_elements:
         break
+
+messages = [
+    {
+        "role": "user",
+        "content": f"Answer the following question based on the provided context: {query}\n\nContext:\n" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}" for i, chunk in enumerate(selected_chunks_content)])
+    }
+]
+
+reponse = chat(model="qwen2.5:3b", messages=messages)
+
+print(reponse.message.content)
