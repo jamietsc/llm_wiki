@@ -108,7 +108,8 @@ for idx, score in zip(sorted_indices, sorted_cosine_scores):
 messages = [
     {
         "role": "user",
-        "content": f"Answer the following question based on the provided context: {query}\n\nContext:\n" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}" for i, chunk in enumerate(selected_chunks_content)])
+        "content": f"""Answer the following question based only on the provided context and add the source file and path of the answer.
+        If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(selected_chunks_content)])
     }
 ]
 
