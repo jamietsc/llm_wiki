@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from classes.chunk import Chunk
 from config import settings
+from ollama import chat
 
 def get_filenames_in_directory(directory):
     """
@@ -62,39 +63,62 @@ print(f"Model is using device: {next(model.parameters()).is_cuda}")
 # create the vector out of the chunks
 embeddings = model.encode([chunk.chunk_content for chunk in chunks], show_progress_bar=True)
 
-# Get the user query and encode it
-query = input("Enter your Question: ")
-query_embedding = model.encode(query, show_progress_bar=True)
+while True:
+    # Get the user query and encode it
+    query = input("If you want to exit, type 'exit'. Enter your Question: ")
 
-# Debug: Print the query embedding to verify its shape and values
-print(f"Query Embedding: {query_embedding}")
-
-# Calculate the cosine similarity between the query and the chunks
-cosine_scores = util.cos_sim(query_embedding, embeddings)
-
-print("Cosine Similarity Scores:") 
-print(cosine_scores)
-
-# Sort the cosine similarity scores in descending order and get the sorted indices
-sorted_cosine_scores, sorted_indices = torch.sort(cosine_scores, descending=True)
-
-#Flatten the sorted cosine scores to a 1D tensor for easier processing
-sorted_cosine_scores = sorted_cosine_scores.flatten()
-sorted_indices = sorted_indices.flatten()
-
-# Debug: Print the count of top k based on the settings
-print(f"--- Top {settings.top_k_elements} Results ---\n\n")
-
-# The variable for the count to check if top_k_elements is reached
-count = 0
-for idx, score in zip(sorted_indices, sorted_cosine_scores):
-    if score.item() < settings.threshold:
+    if query.lower() == "exit":
+        print("Exiting the program.")
         break
 
-    #Debug: print the chunk limited to the first 200 characters and the corresponding score
-    print(f"Chunk: {chunks[idx].chunk_content[:200]} \nScore: {score.item()}\n\n")
-    print(f"Source File: {chunks[idx].source_file} \nPath: {chunks[idx].path}\n\n")
+    query_embedding = model.encode(query, show_progress_bar=True)
 
-    count+=1
-    if count >= settings.top_k_elements:
-        break
+    # Debug: Print the query embedding to verify its shape and values
+    print(f"Query Embedding: {query_embedding}")
+
+    # Calculate the cosine similarity between the query and the chunks
+    cosine_scores = util.cos_sim(query_embedding, embeddings)
+
+    print("Cosine Similarity Scores:") 
+    print(cosine_scores)
+
+    # Sort the cosine similarity scores in descending order and get the sorted indices
+    sorted_cosine_scores, sorted_indices = torch.sort(cosine_scores, descending=True)
+
+    #Flatten the sorted cosine scores to a 1D tensor for easier processing
+    sorted_cosine_scores = sorted_cosine_scores.flatten()
+    sorted_indices = sorted_indices.flatten()
+
+    # Debug: Print the count of top k based on the settings
+    print(f"--- Top {settings.top_k_elements} Results ---\n\n")
+
+    # Variable to keep track of each selected chunk's content for the final response
+    selected_chunks_content = []
+
+    # The variable for the count to check if top_k_elements is reached
+    count = 0
+    for idx, score in zip(sorted_indices, sorted_cosine_scores):
+        if score.item() < settings.threshold:
+            break
+
+        selected_chunks_content.append(chunks[idx])
+
+        #Debug: print the chunk limited to the first 200 characters and the corresponding score
+        #print(f"Chunk: {chunks[idx].chunk_content[:200]} \nScore: {score.item()}\n\n")
+        #print(f"Source File: {chunks[idx].source_file} \nPath: {chunks[idx].path}\n\n")
+
+        count+=1
+        if count >= settings.top_k_elements:
+            break
+
+    messages = [
+        {
+            "role": "user",
+            "content": f"""Answer the following question in German based only on the provided context and add the source file and path of the answer.
+            If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(selected_chunks_content)])
+        }
+    ]
+
+    response = chat(model="qwen2.5:3b", messages=messages)
+
+    print(response.message.content)
