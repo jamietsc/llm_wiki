@@ -114,7 +114,7 @@ while True:
     messages = [
         {
             "role": "user",
-            "content": f"""Answer the following question in based only on the provided context and add the source file and path of the answer.
+            "content": f"""Answer the following question in German based only on the provided context and add the source file and path of the answer.
             If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(selected_chunks_content)])
         }
     ]
