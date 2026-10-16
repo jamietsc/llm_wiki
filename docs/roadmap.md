@@ -22,7 +22,7 @@ This roadmap outlines the iterative, "Local-First" evolution of the AI-native Wi
   - `retriever.py` (Similarity search & ranking)
   - `main.py` (Orchestration)
 
-- [ ] **Optional/Teaser:** Connect a local LLM via Ollama (e.g., Qwen or Gemma) to synthesize the retrieved chunks into a final natural-language answer.
+- [x] **Optional/Teaser:** Connect a local LLM via Ollama (e.g., Qwen or Gemma) to synthesize the retrieved chunks into a final natural-language answer.
 
 ## 🟠 Phase 3: Backend API & Database Migration (`pgvector`)
 *Focus: Transitioning from local memory to an enterprise-grade database and backend service.*
@@ -47,3 +47,4 @@ This roadmap outlines the iterative, "Local-First" evolution of the AI-native Wi
   - Live source citation view.
 - [ ] Write Infrastructure as Code (IaC) templates (e.g., Terraform or Bicep) to describe cloud deployment (e.g., Azure Container Apps / App Service).
 - [ ] Finalize repository documentation with architecture diagrams and setup instructions for GitHub.
+- [ ] Add a configuration page to the frontend, to configure model path, file path and database path
