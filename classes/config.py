@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     threshold: float = 0.5
 
     # database login
-    dbname : str = "ai_wiki_db"
+    db_name : str = "ai_wiki_db"
     db_user : str = "postgres"
     db_password : str = ""
 

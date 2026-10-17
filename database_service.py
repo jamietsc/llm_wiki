@@ -15,7 +15,7 @@ def insert_chunks_into_database(chunk_list: list[Chunk]):
 
     try:
         # Connect to the PostgreSQL database
-        conn = psycopg2.connect(f"dbname={settings.dbname} user={settings.db_user} password={settings.db_password}")
+        conn = psycopg2.connect(f"dbname={settings.db_name} user={settings.db_user} password={settings.db_password}")
         cur = conn.cursor()
 
         # Insert each chunk into the database
@@ -42,7 +42,7 @@ def load_chunks_from_database() -> list[Chunk]:
     chunks = []
     try:
         # Connect to the PostgreSQL database
-        conn = psycopg2.connect(f"dbname={settings.dbname} user={settings.db_user} password={settings.db_password}")
+        conn = psycopg2.connect(f"dbname={settings.db_name} user={settings.db_user} password={settings.db_password}")
         cur = conn.cursor()
 
         # Execute a query to retrieve all chunks from the database
