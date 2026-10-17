@@ -2,7 +2,6 @@
 from sentence_transformers import SentenceTransformer, util
 import torch
 from ollama import chat
-import psycopg2
 from langchain_huggingface import HuggingFaceEmbeddings 
 
 # Import own modules
@@ -22,22 +21,6 @@ embeddings_list = []
 for chunk in chunks:
     embeddings_list.append(embeddings.embed_query(chunk.chunk_content))
 
-# Open the connection to the PostgreSQL database
-conn = psycopg2.connect("dbname=ai_wiki_db user=postgres password=1234")
-cur = conn.cursor()
-
-# Insert the embeddings and corresponding chunk information into the database
-for i in range (len(embeddings_list)):
-    embedding = embeddings_list[i]
-    content = chunks[i].chunk_content
-    filename = chunks[i].source_file
-    filepath = chunks[i].path
-    cur.execute("INSERT INTO items (embedding, content, filename, filepath) VALUES (%s, %s, %s, %s)", (embedding, content, filename, filepath))
-
-# Close the connection to the database
-conn.commit()
-cur.close()
-conn.close()
 
 while True:
     # Get the user query and encode it
