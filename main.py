@@ -1,54 +1,16 @@
-from os import listdir
-from os.path import isfile, join
+# Import necessary libraries
 from sentence_transformers import SentenceTransformer, util
 import torch
-import torch.nn as nn
-from classes.chunk import Chunk
-from config import settings
 from ollama import chat
 import psycopg2
-import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings 
 
-def get_filenames_in_directory(directory):
-    """
-    Get a list of filenames in the specified directory.
+# Import own modules
+from classes.config import settings
+from chunking_service import get_data_from_files
 
-    Args:
-        directory (str): The path to the directory.
-
-    Returns:
-        list: A list of filenames in the directory.
-    """
-    return [f for f in listdir(directory) if isfile(join(directory, f))]
-
-def get_read_files(path):
-    """
-    Get a string which is filled with the content of the file from the specified path.
-
-    Args:
-        path (str): The path to the file.
-
-    Returns:
-        str: The content of the file.
-    """
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
-
-#Load the data from the files in the data directory and split it into chunks based on the "#" delimiter
-chunks = []
-
-for file in get_filenames_in_directory("./data"):
-    text = get_read_files(join("./data", file))
-    for part in text.split("#"):
-        part = part.strip()
-        if part:
-            x = Chunk(chunk_number=len(chunks)+1, chunk_content=part, source_file=file, path=join("./data", file))
-            chunks.append(x)
-
-
-# Clean the data set by removing empty strings and whitespaces
-chunks = [chunk for chunk in chunks if chunk.chunk_content.strip()]
+# Load the data from the files and split it into chunks
+chunks = get_data_from_files()
 
 # Load the embedding model
 embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"})
