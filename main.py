@@ -6,6 +6,9 @@ import torch.nn as nn
 from classes.chunk import Chunk
 from config import settings
 from ollama import chat
+import psycopg2
+import numpy as np
+from langchain_huggingface import HuggingFaceEmbeddings 
 
 def get_filenames_in_directory(directory):
     """
@@ -48,20 +51,28 @@ for file in get_filenames_in_directory("./data"):
 chunks = [chunk for chunk in chunks if chunk.chunk_content.strip()]
 
 # Load the model
-model = SentenceTransformer("BAAI/bge-m3")
+#model = SentenceTransformer("BAAI/bge-m3")
+#model = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"})
 
 # Set the device to GPU if available, otherwise use CPU
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Move the model to the selected device
-model.to(device)
+#model.to(device)
 
 # Debug: Check which device is used for the model
 # If it returns "True", it means the model is on GPU, otherwise it's on CPU
-print(f"Model is using device: {next(model.parameters()).is_cuda}")
+#print(f"Model is using device: {next(model.parameters()).is_cuda}")
 
 # create the vector out of the chunks
-embeddings = model.encode([chunk.chunk_content for chunk in chunks], show_progress_bar=True)
+#embeddings = model.encode([chunk.chunk_content for chunk in chunks], show_progress_bar=True)
+embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"})
+embeddings_list = []
+
+
+for chunk in chunks:
+    embeddings_list.append(embeddings.embed_query(chunk.chunk_content))
+
 
 while True:
     # Get the user query and encode it
@@ -71,13 +82,13 @@ while True:
         print("Exiting the program.")
         break
 
-    query_embedding = model.encode(query, show_progress_bar=True)
+    query_embedding = embeddings.embed_query(query)
 
     # Debug: Print the query embedding to verify its shape and values
     print(f"Query Embedding: {query_embedding}")
 
     # Calculate the cosine similarity between the query and the chunks
-    cosine_scores = util.cos_sim(query_embedding, embeddings)
+    cosine_scores = util.cos_sim(query_embedding, embeddings_list)
 
     print("Cosine Similarity Scores:") 
     print(cosine_scores)
