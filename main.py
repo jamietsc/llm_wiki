@@ -1,5 +1,6 @@
 # Import necessary libraries
 from ollama import chat
+from fastapi import FastAPI
 
 # Import own modules
 from classes.config import settings
@@ -10,6 +11,30 @@ from database_service import load_cos_chunks_from_database
 # Load the data from the files and split it into chunks
 # chunks = get_data_from_files()
 
+app = FastAPI()
+
+@app.post("/ask")
+def ask_query(query: str):
+    # Create the embeeding out of the query
+    query_embedding = create_embedding_for_query(query)
+
+    # Load the matching chunk from the database
+    chunks_from_db = load_cos_chunks_from_database(query_embedding)
+
+    # Prepare the prompt for the LLM
+    messages = [
+        {
+            "role": "user",
+            "content": f"""Answer the following question in German based only on the provided context and add the source file and path of the answer.
+            If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(chunks_from_db)])
+        }
+    ]
+
+    response = chat(model="qwen2.5:3b", messages=messages)
+
+    print(type(response))
+
+    return response.message.content
 
 def main():
     while True: 
