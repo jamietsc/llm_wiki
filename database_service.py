@@ -40,6 +40,9 @@ def load_chunks_from_database() -> list[Chunk]:
         list[Chunk]: A list of Chunk objects retrieved from the database.
     """
     chunks = []
+    conn = None
+    cur = None
+    
     try:
         # Connect to the PostgreSQL database
         conn = psycopg2.connect(f"dbname={settings.db_name} user={settings.db_user} password={settings.db_password}")
