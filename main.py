@@ -11,29 +11,33 @@ from database_service import load_cos_chunks_from_database
 # chunks = get_data_from_files()
 
 
-while True:
-    # Get the user query and encode it
-    query = input("If you want to exit, type 'exit'. Enter your Question: ")
+def main():
+    while True: 
+        # Get the user query and encode it
+        query = input("If you want to exit, type 'exit'. Enter your Question: ")
 
-    if query.lower() == "exit":
-        print("Exiting the program.")
-        break
+        if query.lower() == "exit":
+            print("Exiting the program.")
+            break
 
-    query_embedding = create_embedding_for_query(query)
+        query_embedding = create_embedding_for_query(query)
 
-    chunks_from_db = load_cos_chunks_from_database(query_embedding)
+        chunks_from_db = load_cos_chunks_from_database(query_embedding)
 
-    for chunk in chunks_from_db:
-        print(f"ID: {chunk.chunk_number}, Content: {chunk.chunk_content[:200]}, source File: {chunk.source_file}" )
+        for chunk in chunks_from_db:
+            print(f"ID: {chunk.chunk_number}, Content: {chunk.chunk_content[:200]}, source File: {chunk.source_file}" )
 
-    messages = [
-        {
-            "role": "user",
-            "content": f"""Answer the following question in German based only on the provided context and add the source file and path of the answer.
-            If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(chunks_from_db)])
-        }
-    ]
+        messages = [
+            {
+                "role": "user",
+                "content": f"""Answer the following question in German based only on the provided context and add the source file and path of the answer.
+                If the answer is not contained within the context, say 'Leider gibt es zu dieser Frage keine passenden Antworten ': {query}\n\nContext:\n""" + "\n\n".join([f"Chunk {i+1}: {chunk.chunk_content}, File: {chunk.source_file}, Path: {chunk.path}" for i, chunk in enumerate(chunks_from_db)])
+            }
+        ]
 
-    response = chat(model="qwen2.5:3b", messages=messages)
+        response = chat(model="qwen2.5:3b", messages=messages)
 
-    print(response.message.content)
+        print(response.message.content)
+
+if __name__ == "__main__":
+    main()
