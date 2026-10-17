@@ -42,14 +42,14 @@ def load_chunks_from_database() -> list[Chunk]:
     chunks = []
     conn = None
     cur = None
-    
+
     try:
         # Connect to the PostgreSQL database
         conn = psycopg2.connect(f"dbname={settings.db_name} user={settings.db_user} password={settings.db_password}")
         cur = conn.cursor()
 
         # Execute a query to retrieve all chunks from the database
-        cur.execute("SELECT id, embedding, chunk_content, source_file, path FROM items")
+        cur.execute("SELECT id, embedding, content, filename, filepath FROM items")
         rows = cur.fetchall()
 
         # Create Chunk objects from the retrieved rows
@@ -60,6 +60,7 @@ def load_chunks_from_database() -> list[Chunk]:
 
     except Exception as e:
         print(f"An error occurred while loading chunks from the database: {e}")
+        raise
     finally:
         close_database_connection(conn, cur)
 
