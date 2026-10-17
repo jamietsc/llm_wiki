@@ -5,6 +5,11 @@ class Settings(BaseSettings):
     top_k_elements: int = 5
     threshold: float = 0.5
 
+    # database login
+    dbname : str = "ai_wiki_db"
+    db_user : str = "postgres"
+    db_password : str = ""
+
     # read the envoironment variables from the .env file
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
