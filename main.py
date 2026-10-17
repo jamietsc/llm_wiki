@@ -50,32 +50,21 @@ for file in get_filenames_in_directory("./data"):
 # Clean the data set by removing empty strings and whitespaces
 chunks = [chunk for chunk in chunks if chunk.chunk_content.strip()]
 
-# Load the model
-#model = SentenceTransformer("BAAI/bge-m3")
-#model = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"})
-
-# Set the device to GPU if available, otherwise use CPU
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Move the model to the selected device
-#model.to(device)
-
-# Debug: Check which device is used for the model
-# If it returns "True", it means the model is on GPU, otherwise it's on CPU
-#print(f"Model is using device: {next(model.parameters()).is_cuda}")
-
-# create the vector out of the chunks
-#embeddings = model.encode([chunk.chunk_content for chunk in chunks], show_progress_bar=True)
+# Load the embedding model
 embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"})
+
+# Create an empty list to store the embeddings for each chunk
 embeddings_list = []
 
-
+# Generate embeddings for each chunk and store them in the embeddings_list
 for chunk in chunks:
     embeddings_list.append(embeddings.embed_query(chunk.chunk_content))
 
+# Open the connection to the PostgreSQL database
 conn = psycopg2.connect("dbname=ai_wiki_db user=postgres password=1234")
 cur = conn.cursor()
 
+# Insert the embeddings and corresponding chunk information into the database
 for i in range (len(embeddings_list)):
     embedding = embeddings_list[i]
     content = chunks[i].chunk_content
@@ -83,6 +72,7 @@ for i in range (len(embeddings_list)):
     filepath = chunks[i].path
     cur.execute("INSERT INTO items (embedding, content, filename, filepath) VALUES (%s, %s, %s, %s)", (embedding, content, filename, filepath))
 
+# Close the connection to the database
 conn.commit()
 cur.close()
 conn.close()
