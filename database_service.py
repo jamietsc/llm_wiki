@@ -1,5 +1,6 @@
 # Import necessary libraries
 import psycopg2
+from pgvector import Vector
 
 # Import own modules
 from classes.config import settings
@@ -32,7 +33,7 @@ def insert_chunks_into_database(chunk_list: list[Chunk]):
     finally: 
         close_database_connection(conn, cur)
 
-def load_chunks_from_database() -> list[Chunk]:
+def load_cos_chunks_from_database(query_embedding: list[float]) -> list[Chunk]:
     """
     Load all chunks from the database and return them as a list of Chunk objects.
 
@@ -48,14 +49,26 @@ def load_chunks_from_database() -> list[Chunk]:
         conn = psycopg2.connect(f"dbname={settings.db_name} user={settings.db_user} password={settings.db_password}")
         cur = conn.cursor()
 
-        # Execute a query to retrieve all chunks from the database
-        cur.execute("SELECT id, embedding, content, filename, filepath FROM items")
+        # Execute a query to get matching chunks from the database
+        query = """
+            WITH similarity_calculation AS (
+                SELECT id, embedding, content, filename, filepath, 1 - (embedding <=> %s::vector) AS cos_similarity
+                FROM items
+                ORDER BY 1 - (embedding <=> %s::vector)
+                LIMIT %s
+            )
+            SELECT id, embedding, content, filename, filepath
+            FROM similarity_calculation
+            WHERE cos_similarity > %s;
+        """
+        cur.execute(query, (query_embedding, query_embedding, settings.top_k_elements, settings.threshold))
+
         rows = cur.fetchall()
 
         # Create Chunk objects from the retrieved rows
         for row in rows:
-            id, embedding, chunk_content, source_file, path = row
-            chunk = Chunk(chunk_number=id, embedding=embedding, chunk_content=chunk_content, source_file=source_file, path=path)
+            id, embedding, content, filename, filepath = row
+            chunk = Chunk(chunk_number=id, embedding=embedding, chunk_content=content, source_file=filename, path=filepath)
             chunks.append(chunk)
 
     except Exception as e:
