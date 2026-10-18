@@ -3,10 +3,9 @@ from ollama import chat
 from fastapi import FastAPI
 
 # Import own modules
-from classes.config import settings
-from chunking_service import get_data_from_files
 from embedding_service import create_embedding_for_query
 from database_service import load_cos_chunks_from_database
+from routers.wiki_router import wiki_router
 
 # Load the data from the files and split it into chunks
 # chunks = get_data_from_files()
@@ -35,6 +34,8 @@ def ask_query(query: str):
     print(type(response))
 
     return response.message.content
+
+app.include_router(wiki_router)
 
 # def main():
 #     while True: 
