@@ -1,6 +1,7 @@
 class Chunk:
-    def __init__(self, chunk_number, chunk_content, source_file, path):
+    def __init__(self, chunk_number, chunk_content, source_file, path, embedding=None):
         self.chunk_number = chunk_number
         self.chunk_content = chunk_content
         self.source_file = source_file
         self.path = path
+        self.embedding = embedding
