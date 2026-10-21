@@ -15,3 +15,6 @@ def api_get_data_directory():
 def api_create_new_folder(name: str, directory: str):
     return data_service.create_new_folder(name, directory)
 
+@wiki_router.post("/delete_folder", status_code=201)
+def api_delete_folder(path: str):
+    return data_service.delete_folder(path)

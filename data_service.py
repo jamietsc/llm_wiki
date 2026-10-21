@@ -58,4 +58,25 @@ def create_new_folder(name: str, directory: str):
             "detail": "The folder already exists in the selected Path."
         }
 
+def delete_folder(path: str):
+    """
+        Function deletes a folder in the given path
+
+        Args:
+            path (str): This is the path of the folder
+    """
+
+    if path == "":
+        raise HTTPException(status_code=400, detail="The path of the folder can't be empty.")
+
+    if os.path.exists(path):
+        os.rmdir(path)
+        return {
+            "path": path,
+            "status": "deleted",
+            "detail": "Successfull deleted the selected Folder"
+        }
+    else:
+        raise HTTPException(status_code=400, detail="The folder you're trying to delete doesn't exists.")
+
 
