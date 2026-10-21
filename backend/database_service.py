@@ -3,8 +3,8 @@ import psycopg2
 from pgvector import Vector
 
 # Import own modules
-from classes.config import settings
-from classes.chunk import Chunk
+from backend.classes.config import settings
+from backend.classes.chunk import Chunk
 
 def insert_chunks_into_database(chunk_list: list[Chunk]):
     """

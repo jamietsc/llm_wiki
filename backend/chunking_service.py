@@ -3,7 +3,7 @@ from os import listdir
 from os.path import isfile, join
 
 #Import own modules
-from classes.chunk import Chunk
+from backend.classes.chunk import Chunk
 
 def get_filenames_in_directory(directory: str) -> list:
     """

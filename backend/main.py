@@ -3,9 +3,9 @@ from ollama import chat
 from fastapi import FastAPI
 
 # Import own modules
-from embedding_service import create_embedding_for_query
-from database_service import load_cos_chunks_from_database
-from routers.wiki_router import wiki_router
+from backend.embedding_service import create_embedding_for_query
+from backend.database_service import load_cos_chunks_from_database
+from backend.routers.wiki_router import wiki_router
 
 # Load the data from the files and split it into chunks
 # chunks = get_data_from_files()
