@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     # machine learning variables with default values
     top_k_elements: int = 5
-    threshold: float = 0.5
+    threshold: float = 0.0
 
     # database login
     db_name : str = "ai_wiki_db"

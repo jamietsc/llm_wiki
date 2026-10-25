@@ -3,7 +3,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import torch
 
 #Import own librarys
-from backend.classes.chunk import Chunk
+from classes.chunk import Chunk
 
 embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs= {"device": "cuda" if torch.cuda.is_available() else "cpu"})
 

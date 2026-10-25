@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pathlib import Path
 
-import backend.data_service as data_service
+import data_service as data_service
 
 wiki_router = APIRouter(
     prefix="/dict"
