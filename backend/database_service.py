@@ -3,8 +3,8 @@ import psycopg2
 from pgvector import Vector
 
 # Import own modules
-from backend.classes.config import settings
-from backend.classes.chunk import Chunk
+from classes.config import settings
+from classes.chunk import Chunk
 
 def insert_chunks_into_database(chunk_list: list[Chunk]):
     """
@@ -52,12 +52,12 @@ def load_cos_chunks_from_database(query_embedding: list[float]) -> list[Chunk]:
         # Execute a query to get matching chunks from the database
         query = """
             WITH similarity_calculation AS (
-                SELECT id, embedding, content, filename, filepath, 1 - (embedding <=> %s::vector) AS cos_similarity
+                SELECT id, content, embedding, filename, filepath, 1 - (embedding <=> %s::vector) AS cos_similarity
                 FROM items
                 ORDER BY 1 - (embedding <=> %s::vector)
                 LIMIT %s
             )
-            SELECT id, embedding, content, filename, filepath
+            SELECT id, content, embedding, filename, filepath
             FROM similarity_calculation
             WHERE cos_similarity > %s;
         """
@@ -67,8 +67,8 @@ def load_cos_chunks_from_database(query_embedding: list[float]) -> list[Chunk]:
 
         # Create Chunk objects from the retrieved rows
         for row in rows:
-            id, embedding, content, filename, filepath = row
-            chunk = Chunk(chunk_number=id, embedding=embedding, chunk_content=content, source_file=filename, path=filepath)
+            id, content, embedding, filename, filepath = row
+            chunk = Chunk(chunk_number=id, chunk_content=content, embedding=embedding, source_file=filename, path=filepath)
             chunks.append(chunk)
 
     except Exception as e:
